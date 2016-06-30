@@ -1,0 +1,11 @@
+name: 'TacticalInsertions'
+main: 'com.ethanzeigler.tactical_insertions.TacticalInsertions'
+author: 'Tecno Wizard'
+version: '1.0'
+commands:
+  gettac:
+    description: 'Gives a player a tactical insertion'
+    permission: 'tacticalinsertions.get'
+    permission-message: "§cYou don't have permission to do that"
+
+
