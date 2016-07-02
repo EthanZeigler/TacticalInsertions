@@ -2,6 +2,8 @@ package com.ethanzeigler.bukkit_plugin_utils;
 
 import com.sun.istack.internal.Nullable;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -14,10 +16,12 @@ import java.io.File;
 public class LanguageManager {
     private FileConfiguration langMap;
     private Language language;
+    private String pluginPrefix;
     public static final String REPLACE_SEPERATOR = "#$";
 
-    public LanguageManager(Language language) {
+    public LanguageManager(Language language, String pluginPrefix) {
         this.language = language;
+        this.pluginPrefix = pluginPrefix;
         langMap = YamlConfiguration.loadConfiguration(new File(language.fileName));
     }
 
@@ -57,8 +61,10 @@ public class LanguageManager {
      * @param startColor color to start the message with. If null, will be {@link ChatColor#RESET}.
      * @param message the message to send
      */
-    public static void sendAndFormatMessage(Player player, @Nullable ChatColor startColor, String message) {
-        player.sendMessage((startColor != null ? ChatColor.RESET : startColor) + message);
+    public void sendAndFormatMessage(CommandSender player, @Nullable ChatColor startColor, String message) {
+        if (player instanceof Player || player instanceof ConsoleCommandSender) {
+            player.sendMessage(String.format("%s[%s] %s", startColor != null ? ChatColor.RESET : startColor, pluginPrefix, message));
+        }
     }
 
     public Language getLanguage() {

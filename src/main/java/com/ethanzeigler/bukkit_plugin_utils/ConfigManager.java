@@ -19,6 +19,14 @@ public class ConfigManager {
 
     private void loadConfig() {
         config = plugin.getConfig();
+
+        for (ConfigValue value : ConfigValue.values()) {
+            // this is a really complicated way of checking if the value is valid
+            // if the default value is of the same class as the config's value
+            if (!value.defaultVal.getClass().isInstance(config.get(value.toString()))) {
+                config.set(value.toString(), value.defaultVal);
+            }
+        }
         // use plugin prefix as the indicator of a valid config
         if (config.get(PLUGIN_PREFIX.toString()) == null) {
             // file is not set up

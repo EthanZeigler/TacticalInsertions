@@ -7,5 +7,12 @@ commands:
     description: 'Gives a player a tactical insertion'
     permission: 'tacticalinsertions.get'
     permission-message: "§cYou don't have permission to do that"
+  tacwarp:
+    description: 'Warps the player to the specified tac'
+  tacwarps:
+    description: "Lists the player's warps"
+permissions:
+  tacticalinsertions.getblock:
+    description: 'Allows the player to get a tactical insertion block'
 
 
