@@ -12,10 +12,10 @@ import java.util.List;
 /**
  * Created by ethan on 6/29/16.
  */
-public class TorchStackFactory {
+public class TacStackFactory {
     public static ItemStack seed;
 
-    public static ItemStack getTorchStack() {
+    public static ItemStack getTacStack() {
         if (seed == null) {
             seed = new ItemStack(Material.REDSTONE_TORCH_ON);
             ItemMeta meta = seed.getItemMeta();
