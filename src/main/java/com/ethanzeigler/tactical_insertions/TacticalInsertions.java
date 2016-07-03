@@ -1,26 +1,28 @@
 package com.ethanzeigler.tactical_insertions;
 
-import com.ethanzeigler.bukkit_plugin_utils.ConfigManager;
-import com.ethanzeigler.bukkit_plugin_utils.ConfigValue;
-import com.ethanzeigler.bukkit_plugin_utils.Language;
-import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.List;
-import java.util.Map;
+import com.ethanzeigler.bukkit_plugin_utils.ConfigValue;
+import com.ethanzeigler.bukkit_plugin_utils.Language;
+import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
 
 /**
  * Created by ethan on 6/28/16.
@@ -28,6 +30,8 @@ import java.util.Map;
 public class TacticalInsertions extends JavaPlugin implements Listener, CommandExecutor {
     private static PluginCore pluginCore;
     private Map<Location, TacticalInsertion> insertions;
+    //I have to use this as a map to save the location of where the insert is for use in PlayerChatEvent
+    private Map<UUID, Location> tacNameWait = new HashMap<>();
 
     @Override
     public void onDisable() {
@@ -40,7 +44,7 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
         pluginCore = new PluginCore(this, false, Language.ENGLISH);
 
         // get plugin mode
-        boolean mode = pluginCore.getConfigManager().get(ConfigValue.IS_WARP_MODE);
+        boolean mode = (boolean) pluginCore.getConfigManager().get(ConfigValue.IS_WARP_MODE);
 
         // register command
         getCommand("gettac").setExecutor(this);
@@ -78,10 +82,37 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
             }
         }
     }
+    
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent e){
+    	if(e.getItemInHand().equals(TorchStackFactory.getTorchStack())){
+    		Player player = e.getPlayer();
+    		//Not sure if multiple are allowed to be placed.
+    		for(TacticalInsertion insert : insertions.values()){
+    			if(player.getUniqueId().equals(insert.getOwner())){
+    				player.sendMessage(ChatColor.RED + "You have already placed a Tactical Insertion.");
+    				return;
+    			}
+    		}
+    		tacNameWait.put(player.getUniqueId(), e.getBlock().getLocation());
+    		player.sendMessage(ChatColor.GOLD + "Type in chat the name of your tactical insert.");
+    	}
+    }
+    
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent e){
+    	if(tacNameWait.containsKey(e.getPlayer().getUniqueId())){
+    		String name = e.getMessage();
+    		Location loc = tacNameWait.get(e.getPlayer().getUniqueId());
+    		insertions.put(loc, new TacticalInsertion(loc, name, e.getPlayer().getUniqueId()));
+    		e.getPlayer().sendMessage(ChatColor.GOLD + "You have successfully placed a tactical insert called '" + ChatColor.GRAY + name + ChatColor.GOLD + "'");
+    		//Now would be the time to activate particles to indicate the tac insert has been "enabled"
+    	}
+    }
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent e) {
-        for (TacticalInsertion insert : insertions) {
+        for (TacticalInsertion insert : insertions.values()) {
             if (insert.getOwner().equals(e.getPlayer().getUniqueId())) {
                 e.setRespawnLocation(insert.getLoc());
                 // disable the insertion, then break the tac in a second.
