@@ -1,6 +1,5 @@
 package com.ethanzeigler.bukkit_plugin_utils;
 
-import com.sun.istack.internal.Nullable;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
@@ -61,7 +60,7 @@ public class LanguageManager {
      * @param startColor color to start the message with. If null, will be {@link ChatColor#RESET}.
      * @param message the message to send
      */
-    public void sendAndFormatMessage(CommandSender player, @Nullable ChatColor startColor, String message) {
+    public void sendAndFormatMessage(CommandSender player, ChatColor startColor, String message) {
         if (player instanceof Player || player instanceof ConsoleCommandSender) {
             player.sendMessage(String.format("%s[%s] %s", startColor != null ? ChatColor.RESET : startColor, pluginPrefix, message));
         }
