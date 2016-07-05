@@ -51,10 +51,12 @@ public class WarpEventListener implements Listener, CommandExecutor {
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
         if (waitingToNameMap.containsKey(e.getPlayer().getUniqueId())) {
+            e.setCancelled(true);
             Location loc = waitingToNameMap.get(e.getPlayer().getUniqueId());
             String name = e.getMessage().toLowerCase().split(" ")[0];
             insertions.put(waitingToNameMap.get(e.getPlayer().getUniqueId()), new TacticalInsertion(loc, name, e.getPlayer().getUniqueId()));
             waitingToNameMap.remove(e.getPlayer().getUniqueId());
+            // todo return message
         }
     }
 
@@ -92,6 +94,8 @@ public class WarpEventListener implements Listener, CommandExecutor {
                                 loc2.getBlock().setType(Material.AIR);
                                 e.getPlayer().getInventory().addItem(TacStackFactory.getTacStack());
                                 return;
+
+                                // todo diagnose why naming is required even if not necessary
                             });
                         }
                     }
