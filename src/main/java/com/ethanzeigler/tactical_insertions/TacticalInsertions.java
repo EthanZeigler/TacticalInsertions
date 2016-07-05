@@ -3,6 +3,7 @@ package com.ethanzeigler.tactical_insertions;
 import com.ethanzeigler.bukkit_plugin_utils.ConfigValue;
 import com.ethanzeigler.bukkit_plugin_utils.Language;
 import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
+import com.ethanzeigler.tactical_insertions.warps.WarpEventListener;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -41,14 +42,19 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
         // get plugin mode
         boolean mode = (Boolean) pluginCore.getConfigManager().get(ConfigValue.IS_WARP_MODE);
 
-        // register command
-        getCommand("gettac").setExecutor(this);
+        insertions = new ConcurrentHashMap<>();
+        //todo retrieve values
+
+        if (mode) {
+            // warp mode listeners/commands
+            WarpEventListener listener = new WarpEventListener(this);
+        } else {
+
+        }
+
 
         // register listeners (this system is idiotic...)
         getServer().getPluginManager().registerEvents(this, this);
-
-        insertions = new ConcurrentHashMap<>();
-        //todo retrieve values
 
     }
 

@@ -18,6 +18,7 @@ public class TacStackFactory {
     public static ItemStack getTacStack() {
         if (seed == null) {
             seed = new ItemStack(Material.REDSTONE_TORCH_ON);
+            // todo make stack material changeable
             ItemMeta meta = seed.getItemMeta();
             meta.setDisplayName(String.format("%s%sTactical Insertion", ChatColor.GOLD, ChatColor.BOLD));
             List<String> lore = new ArrayList<>();

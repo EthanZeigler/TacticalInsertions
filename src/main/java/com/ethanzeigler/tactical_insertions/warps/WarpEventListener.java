@@ -37,6 +37,10 @@ public class WarpEventListener implements Listener, CommandExecutor {
     private Map<UUID, Location> waitingToNameMap = new HashMap<>();
 
     public WarpEventListener(TacticalInsertions plugin) {
+        plugin.getCommand("gettac").setExecutor(this);
+        plugin.getCommand("tacwarp").setExecutor(this);
+        plugin.getCommand("tacwarps").setExecutor(this);
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
         this.plugin = plugin;
         insertions = plugin.getInsertions();
         pluginCore = TacticalInsertions.getPluginCore();
@@ -50,6 +54,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
             Location loc = waitingToNameMap.get(e.getPlayer().getUniqueId());
             String name = e.getMessage().toLowerCase().split(" ")[0];
             insertions.put(waitingToNameMap.get(e.getPlayer().getUniqueId()), new TacticalInsertion(loc, name, e.getPlayer().getUniqueId()));
+            waitingToNameMap.remove(e.getPlayer().getUniqueId());
         }
     }
 
@@ -66,8 +71,13 @@ public class WarpEventListener implements Listener, CommandExecutor {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e) {
-        if (e.getBlock().equals(TacStackFactory.getTacStack())) {
+        // todo remove debug
+        System.out.println("Checking block state");
+        System.out.println("placing block: " + e.getItemInHand().getItemMeta().getDisplayName());
+        if (e.getItemInHand().equals(TacStackFactory.getTacStack())) {
+            System.out.println("block state matches");
             if (!waitingToNameMap.containsKey(e.getPlayer().getUniqueId())) { // is not waiting on naming another
+                System.out.println("get ready to name");
                 plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
                     for (TacticalInsertion insertion : insertions.values()) {
                         Location loc1 = insertion.getLoc();
@@ -127,8 +137,15 @@ public class WarpEventListener implements Listener, CommandExecutor {
                 }
             }
             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                langManager.sendAndFormatMessage(
-                        sender, ChatColor.GOLD,sb.toString().substring(0, sb.toString().length() - 2));
+                if (sb.length() > 0) {
+                    // found entries
+                    langManager.sendAndFormatMessage(
+                            sender, ChatColor.GOLD, sb.toString().substring(0, sb.toString().length() - 2));
+
+                } else {
+                    langManager.sendAndFormatMessage(sender, ChatColor.GOLD, "You don't have any tacs. " +
+                            "You never placed one or they were smashed by another player.");
+                }
             });
         });
     }

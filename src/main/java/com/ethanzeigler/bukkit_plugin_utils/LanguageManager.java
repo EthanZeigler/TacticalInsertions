@@ -62,7 +62,7 @@ public class LanguageManager {
      */
     public void sendAndFormatMessage(CommandSender player, ChatColor startColor, String message) {
         if (player instanceof Player || player instanceof ConsoleCommandSender) {
-            player.sendMessage(String.format("%s[%s] %s", startColor != null ? ChatColor.RESET : startColor, pluginPrefix, message));
+            player.sendMessage(String.format("%s[%s] %s", startColor == null ? ChatColor.RESET : startColor, pluginPrefix, message));
         }
     }
 
