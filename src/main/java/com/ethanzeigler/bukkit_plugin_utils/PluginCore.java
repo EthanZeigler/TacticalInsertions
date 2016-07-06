@@ -24,7 +24,7 @@ public class PluginCore {
 
     public PluginCore(JavaPlugin plugin, boolean cachePlayerFiles, Language lang) {
         configManager = new ConfigManager(plugin);
-        languageManager = new LanguageManager(Language.ENGLISH, (String) configManager.get(ConfigValue.PLUGIN_PREFIX));
+        languageManager = new LanguageManager(plugin, Language.ENGLISH, (String) configManager.get(ConfigValue.PLUGIN_PREFIX));
         this.cachePlayerFiles = cachePlayerFiles;
         this.pluginPrefix = (String) configManager.get(ConfigValue.PLUGIN_PREFIX);
     }

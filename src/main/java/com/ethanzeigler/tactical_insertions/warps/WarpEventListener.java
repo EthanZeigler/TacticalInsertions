@@ -20,10 +20,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by ethan on 6/30/16.
@@ -34,7 +32,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
     private PluginCore pluginCore;
     private LanguageManager langManager;
     private Material tacMaterial;
-    private Map<UUID, Location> waitingToNameMap = new HashMap<>();
+    private Map<UUID, TacticalInsertion> waitingToNameMap = new HashMap<>();
 
     public WarpEventListener(TacticalInsertions plugin) {
         plugin.getCommand("gettac").setExecutor(this);
@@ -50,13 +48,28 @@ public class WarpEventListener implements Listener, CommandExecutor {
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
-        if (waitingToNameMap.containsKey(e.getPlayer().getUniqueId())) {
-            e.setCancelled(true);
-            Location loc = waitingToNameMap.get(e.getPlayer().getUniqueId());
-            String name = e.getMessage().toLowerCase().split(" ")[0];
-            insertions.put(waitingToNameMap.get(e.getPlayer().getUniqueId()), new TacticalInsertion(loc, name, e.getPlayer().getUniqueId()));
-            waitingToNameMap.remove(e.getPlayer().getUniqueId());
-            // todo return message
+        UUID uuid = e.getPlayer().getUniqueId();
+        if (waitingToNameMap.containsKey(uuid)) {
+            String[] words = e.getMessage().split(" ");
+            if (words.length == 1) {
+                // the formatting is correct. One word. Add waiting tac to active list and change it's name
+                e.setCancelled(true);
+                TacticalInsertion insertion = waitingToNameMap.get(uuid);
+                insertion.setName(words[0].toLowerCase());
+
+                insertions.put(waitingToNameMap.get(uuid).getLoc(), waitingToNameMap.get(uuid));
+                // clear from waiting name
+                waitingToNameMap.remove(e.getPlayer().getUniqueId());
+                // send confirm message
+                plugin.getServer().getScheduler().runTask(plugin, () -> langManager.sendMessage(
+                        e.getPlayer(), ChatColor.GOLD, String.format("Your warp %s%s%s is set.",
+                                ChatColor.AQUA, insertion.getName(), ChatColor.GOLD)));
+            } else {
+                // multiple words. Incorrect formatting
+                plugin.getServer().getScheduler().runTask(plugin, () ->
+                    langManager.sendMessage(e.getPlayer(), ChatColor.RED, "The tactical insertion's name must" +
+                            " be one word."));
+            }
         }
     }
 
@@ -66,7 +79,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
             if (insertions.get(e.getBlock().getLocation()) != null) {
                 // todo this may cause concurrent mod issues. Investigate.
                 insertions.remove(e.getBlock().getLocation());
-                langManager.sendAndFormatMessage(e.getPlayer(), ChatColor.GOLD, "The tactical insertion has been smashed.");
+                langManager.sendMessage(e.getPlayer(), ChatColor.GOLD, "The tactical insertion has been smashed.");
             }
         }
     }
@@ -90,7 +103,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
                                 (int) pluginCore.getConfigManager().get(ConfigValue.DISTANCE_FROM_TAC)) {
                             // tac is too close to another
                             plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                langManager.sendAndFormatMessage(e.getPlayer(), ChatColor.RED, "That's too close to another tactical insertion");
+                                langManager.sendMessage(e.getPlayer(), ChatColor.RED, "That's too close to another tactical insertion");
                                 loc2.getBlock().setType(Material.AIR);
                                 e.getPlayer().getInventory().addItem(TacStackFactory.getTacStack());
                                 return;
@@ -100,11 +113,13 @@ public class WarpEventListener implements Listener, CommandExecutor {
                         }
                     }
                 });
-               waitingToNameMap.put(e.getPlayer().getUniqueId(), e.getBlock().getLocation());
+                // add the player to the waiting list for naming
+               waitingToNameMap.put(e.getPlayer().getUniqueId(), new TacticalInsertion(
+                       e.getBlock().getLocation(), null, e.getPlayer().getUniqueId()));
             } else {
                 // is waiting on naming another
                 e.setCancelled(true);
-                langManager.sendAndFormatMessage(e.getPlayer(), ChatColor.RED, "You must name another tac by chatting it first.");
+                langManager.sendMessage(e.getPlayer(), ChatColor.RED, "You must name another tac by chatting it first.");
             }
         }
     }
@@ -113,7 +128,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            langManager.sendAndFormatMessage(sender, ChatColor.RED, "Sorry, that's for players.");
+            langManager.sendMessage(sender, ChatColor.RED, "Sorry, that's for players.");
         } else {
             switch (cmd.getName()) {
                 case "gettac":
@@ -143,11 +158,11 @@ public class WarpEventListener implements Listener, CommandExecutor {
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 if (sb.length() > 0) {
                     // found entries
-                    langManager.sendAndFormatMessage(
+                    langManager.sendMessage(
                             sender, ChatColor.GOLD, sb.toString().substring(0, sb.toString().length() - 2));
 
                 } else {
-                    langManager.sendAndFormatMessage(sender, ChatColor.GOLD, "You don't have any tacs. " +
+                    langManager.sendMessage(sender, ChatColor.GOLD, "You don't have any tacs. " +
                             "You never placed one or they were smashed by another player.");
                 }
             });
@@ -157,7 +172,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
     private void goToWarp(Player sender, String[] args) {
         if (args.length != 1) {
             // incorrect syntax. Args must le lenght 1
-            langManager.sendAndFormatMessage(sender, ChatColor.RED, "Incorrect usage: /tacwarp <name>");
+            langManager.sendMessage(sender, ChatColor.RED, "Incorrect usage: /tacwarp <name>");
         } else {
             // search for warp from that player with the same name async
             plugin.getServer().getScheduler().runTaskAsynchronously(
@@ -166,7 +181,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
                                     insertion.getName().toLowerCase().equals(args[0].toLowerCase())).forEach(insertion -> { // loop matches (will be only one)
                         plugin.getServer().getScheduler().runTask(plugin, () -> {
                             sender.teleport(insertion.getLoc()); // warped player
-                            langManager.sendAndFormatMessage( //send message
+                            langManager.sendMessage( //send message
                                     sender, ChatColor.GOLD, "You warped to " + insertion.getName().toLowerCase());
                         });
                     }));
@@ -179,11 +194,11 @@ public class WarpEventListener implements Listener, CommandExecutor {
             Player player = (Player) sender;
             // sender is a player
             if (player.getInventory().contains(TacStackFactory.getTacStack())) {
-                langManager.sendAndFormatMessage(
+                langManager.sendMessage(
                         sender, ChatColor.RED, "You already have a Tactical Insertion in your inventory.");
             } else {
                 sender.getInventory().addItem(TacStackFactory.getTacStack());
-                langManager.sendAndFormatMessage(sender, ChatColor.GOLD, "You got a Tactical Insertion!");
+                langManager.sendMessage(sender, ChatColor.GOLD, "You got a Tactical Insertion!");
             }
         }
     }

@@ -6,6 +6,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 
@@ -14,11 +15,13 @@ import java.io.File;
  */
 public class LanguageManager {
     private FileConfiguration langMap;
+    private JavaPlugin plugin;
     private Language language;
     private String pluginPrefix;
     public static final String REPLACE_SEPERATOR = "#$";
 
-    public LanguageManager(Language language, String pluginPrefix) {
+    public LanguageManager(JavaPlugin plugin, Language language, String pluginPrefix) {
+        this.plugin = plugin;
         this.language = language;
         this.pluginPrefix = pluginPrefix;
         langMap = YamlConfiguration.loadConfiguration(new File(language.fileName));
@@ -27,6 +30,7 @@ public class LanguageManager {
     /**
      * Gets the message template if it exists from the current language file.
      * If it does not exist, an {@link IllegalArgumentException} will be thrown.
+     *
      * @param msg the message template to get
      * @return the message of that template
      */
@@ -40,8 +44,9 @@ public class LanguageManager {
 
     /**
      * Replaces placeholders in messages separated by {@link LanguageManager#REPLACE_SEPERATOR} (#$)
+     *
      * @param template the String that needs placeholders replaced
-     * @param args The replacing placeholder and replacement in the format "placeholder#$replacer"
+     * @param args     The replacing placeholder and replacement in the format "placeholder#$replacer"
      * @return the template with the replaced values
      */
     public static String replaceValues(String template, String... args) {
@@ -56,14 +61,27 @@ public class LanguageManager {
 
     /**
      * Sends a formatted message to the player
-     * @param player player to send the message to
+     *
+     * @param player     player to send the message to
      * @param startColor color to start the message with. If null, will be {@link ChatColor#RESET}.
-     * @param message the message to send
+     * @param message    the message to send
      */
-    public void sendAndFormatMessage(CommandSender player, ChatColor startColor, String message) {
+    public void sendMessage(CommandSender player, ChatColor startColor, String message) {
         if (player instanceof Player || player instanceof ConsoleCommandSender) {
             player.sendMessage(String.format("%s[%s] %s", startColor == null ? ChatColor.RESET : startColor, pluginPrefix, message));
         }
+    }
+
+    /**
+     * Sends a message to the player on the next tick synchronously for when a message needs to be sent during an
+     * async action.
+     *
+     * @param player     player to send the message to
+     * @param startColor color to start the message with. If null, will be {@link ChatColor#RESET}
+     * @param message    the message to send
+     */
+    public void sendSyncMessage(CommandSender player, ChatColor startColor, String message) {
+        plugin.getServer().getScheduler().runTask(plugin, () -> sendMessage(player, startColor, message));
     }
 
     public Language getLanguage() {
