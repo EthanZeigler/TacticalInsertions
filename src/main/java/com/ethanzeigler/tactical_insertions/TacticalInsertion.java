@@ -25,8 +25,11 @@ public class TacticalInsertion implements ConfigurationSerializable {
     public TacticalInsertion(Map<String, Object> data) {
 
         // todo finish deserialization
-        loc = new Location(Bukkit.getWorld(data.get("loc.world")),
-                data.get("loc.x"), )
+        loc = new Location(Bukkit.getWorld((String) data.get("loc.world")),
+                (double) data.get("loc.x"), (double) data.get("loc.y"), (double) data.get("loc.z"));
+
+        name = (String) data.get("name");
+        owner = UUID.fromString((String) data.get("owner"));
     }
 
     /**
@@ -75,5 +78,7 @@ public class TacticalInsertion implements ConfigurationSerializable {
         data.put("loc.world", loc.getWorld().getName());
         data.put("name", name);
         data.put("owner", owner.toString());
+
+        return data;
     }
 }
