@@ -1,13 +1,17 @@
 package com.ethanzeigler.tactical_insertions;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
  * Created by ethan on 6/28/16.
  */
-public class TacticalInsertion {
+public class TacticalInsertion implements ConfigurationSerializable {
     private Location loc;
     private String name;
     private UUID owner;
@@ -16,6 +20,13 @@ public class TacticalInsertion {
         this.loc = loc;
         this.name = name;
         this.owner = owner;
+    }
+
+    public TacticalInsertion(Map<String, Object> data) {
+
+        // todo finish deserialization
+        loc = new Location(Bukkit.getWorld(data.get("loc.world")),
+                data.get("loc.x"), )
     }
 
     /**
@@ -45,5 +56,24 @@ public class TacticalInsertion {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Creates a Map representation of this class.
+     * <p>
+     * This class must provide a method to restore this class, as defined in
+     * the {@link ConfigurationSerializable} interface javadocs.
+     *
+     * @return Map containing the current state of this class
+     */
+    @Override
+    public Map<String, Object> serialize() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("loc.x", loc.getBlock());
+        data.put("loc.y", loc.getBlockY());
+        data.put("loc.z", loc.getBlockZ());
+        data.put("loc.world", loc.getWorld().getName());
+        data.put("name", name);
+        data.put("owner", owner.toString());
     }
 }

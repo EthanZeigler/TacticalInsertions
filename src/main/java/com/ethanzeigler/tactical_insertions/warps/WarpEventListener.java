@@ -19,11 +19,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by ethan on 6/30/16.
@@ -34,7 +36,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
     private PluginCore pluginCore;
     private LanguageManager langManager;
     private Material tacMaterial;
-    private Map<UUID, TacticalInsertion> waitingToNameMap = new HashMap<>();
+    private Map<UUID, TacticalInsertion> waitingToNameMap = new ConcurrentHashMap<>();
 
     public WarpEventListener(TacticalInsertions plugin) {
         plugin.getCommand("gettac").setExecutor(this);
@@ -46,6 +48,14 @@ public class WarpEventListener implements Listener, CommandExecutor {
         pluginCore = TacticalInsertions.getPluginCore();
         langManager = pluginCore.getLanguageManager();
         tacMaterial = (Material) pluginCore.getConfigManager().get(ConfigValue.TAC_BLOCK);
+    }
+
+    @EventHandler
+    public void onLogout(PlayerQuitEvent e) {
+        // if the player is waiting for a tac to be placed, forget it.
+        if (waitingToNameMap.containsKey(e.getPlayer().getUniqueId())) {
+            waitingToNameMap.remove(e.getPlayer().getUniqueId());
+        }
     }
 
     @EventHandler
@@ -92,24 +102,31 @@ public class WarpEventListener implements Listener, CommandExecutor {
                 // is not waiting on naming another, name tac state
                 e.setCancelled(true);
                 // run validity check
-                TacPositionValidity validity = validatePosition(e.getBlock().getLocation());
+                plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                    TacPositionValidity validity = validatePosition(e.getBlock().getLocation());
 
-                switch(validity) {
-                    case VALID:
-                        waitingToNameMap.put(e.getPlayer().getUniqueId(), new TacticalInsertion(
-                                e.getBlock().getLocation(), null, e.getPlayer().getUniqueId()));
-                        langManager.sendSyncMessage(e.getPlayer(), ChatColor.GOLD, "That spot's fine. Chat the name you want to give to the tactical insertion.");
-                        break;
+                    switch(validity) {
+                        case VALID:
+                            waitingToNameMap.put(e.getPlayer().getUniqueId(), new TacticalInsertion(
+                                    e.getBlock().getLocation(), null, e.getPlayer().getUniqueId()));
+                            langManager.sendSyncMessage(e.getPlayer(), ChatColor.GOLD, "That spot's fine. Chat the name you want to give to the tactical insertion.");
 
-                    case TOO_CLOSE_TO_EXISTING:
-                        langManager.sendMessage(e.getPlayer(), ChatColor.RED, "That's too close to another tactical insertion");
-                        break;
+                            // remove from inventory synchronously
+                            plugin.getServer().getScheduler().runTask(plugin, () ->
+                                    e.getPlayer().getInventory().remove(TacStackFactory.getTacStack()));
+                            break;
 
-                    case TOO_CLOSE_TO_PROPOSED:
-                        langManager.sendMessage(e.getPlayer(), ChatColor.RED, "That's too close to another tactical insertion someone is currently naming");
-                        break;
+                        case TOO_CLOSE_TO_EXISTING:
+                            langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "That's too close to another tactical insertion");
+                            break;
 
-                }
+                        case TOO_CLOSE_TO_PROPOSED:
+                            langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "That's too close to another tactical insertion someone is currently naming");
+                            break;
+
+                    }
+                });
+
 
                 // tac is not too close to another
                 // add the player to the waiting list for naming
@@ -172,7 +189,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
 
     private void goToWarp(Player sender, String[] args) {
         if (args.length != 1) {
-            // incorrect syntax. Args must le lenght 1
+            // incorrect syntax. Args must lenght 1
             langManager.sendMessage(sender, ChatColor.RED, "Incorrect usage: /tacwarp <name>");
         } else {
             // search for warp from that player with the same name async
@@ -212,18 +229,16 @@ public class WarpEventListener implements Listener, CommandExecutor {
      */
     private TacPositionValidity validatePosition(Location loc) {
         // check if there isn't a conflicting tactical
+
         // check all existing tacticals
-
-        // todo continue cleanup
         if (!hasEnoughDistanceBetween(loc, insertions.values())) {
-            n
+            return TacPositionValidity.TOO_CLOSE_TO_EXISTING;
+        } else if (!hasEnoughDistanceBetween(loc, waitingToNameMap.values())) {
+            // check proposed tacticals
+            return TacPositionValidity.TOO_CLOSE_TO_PROPOSED;
         }
 
-        // check proposed tacticals
-        for (TacticalInsertion insertion : waitingToNameMap.values()) {
-            loc1 = insertion.getLoc();
-            isEnoughDistanceBetween(loc1, loc2);
-        }
+        return TacPositionValidity.VALID;
     }
 
     private boolean hasEnoughDistanceBetween(Location loc, Collection<TacticalInsertion> insertions) {

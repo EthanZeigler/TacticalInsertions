@@ -31,7 +31,11 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
 
     @Override
     public void onDisable() {
-        super.onDisable();
+        // get plugin mode
+        boolean mode = (Boolean) pluginCore.getConfigManager().get(ConfigValue.IS_WARP_MODE);
+        if (mode) {
+            // serlialize data
+        }
     }
 
     @Override
@@ -49,6 +53,7 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
             // warp mode listeners/commands
             WarpEventListener listener = new WarpEventListener(this);
         } else {
+            // todo respawn mode
 
         }
 
