@@ -3,7 +3,7 @@ package com.ethanzeigler.tactical_insertions.warps;
 import com.ethanzeigler.bukkit_plugin_utils.ConfigValue;
 import com.ethanzeigler.bukkit_plugin_utils.LanguageManager;
 import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
-import com.ethanzeigler.tactical_insertions.TacticalInsertion;
+import com.ethanzeigler.tactical_insertions.Insertion;
 import com.ethanzeigler.tactical_insertions.TacticalInsertions;
 import com.ethanzeigler.tactical_insertions.TacStackFactory;
 import com.ethanzeigler.tactical_insertions.universal.TacPositionValidity;
@@ -22,7 +22,6 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,11 +31,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class WarpEventListener implements Listener, CommandExecutor {
     private TacticalInsertions plugin;
-    private Map<Location, TacticalInsertion> insertions;
+    private Map<Location, Insertion> insertions;
     private PluginCore pluginCore;
     private LanguageManager langManager;
     private Material tacMaterial;
-    private Map<UUID, TacticalInsertion> waitingToNameMap = new ConcurrentHashMap<>();
+    private Map<UUID, Insertion> waitingToNameMap = new ConcurrentHashMap<>();
 
     public WarpEventListener(TacticalInsertions plugin) {
         plugin.getCommand("gettac").setExecutor(this);
@@ -66,15 +65,20 @@ public class WarpEventListener implements Listener, CommandExecutor {
             if (words.length == 1) {
                 // the formatting is correct. One word. Add waiting tac to active list and change it's name
                 e.setCancelled(true);
-                TacticalInsertion insertion = waitingToNameMap.get(uuid);
+                Insertion insertion = waitingToNameMap.get(uuid);
                 insertion.setName(words[0].toLowerCase());
 
                 insertions.put(waitingToNameMap.get(uuid).getLoc(), waitingToNameMap.get(uuid));
+                // make block
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    insertion.getLoc().getBlock().setType((Material) pluginCore.getConfigManager().get(ConfigValue.TAC_BLOCK));
+                });
                 // clear from waiting name
                 waitingToNameMap.remove(e.getPlayer().getUniqueId());
                 // send confirm message (sync, this is an async event)
                 langManager.sendSyncMessage(e.getPlayer(), ChatColor.GOLD, String.format("Your warp %s%s%s is set.",
                                 ChatColor.AQUA, insertion.getName(), ChatColor.GOLD));
+
             } else {
                 // multiple words. Incorrect formatting (send sync, in async)
                     langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "The tactical insertion's name must" +
@@ -107,7 +111,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
 
                     switch(validity) {
                         case VALID:
-                            waitingToNameMap.put(e.getPlayer().getUniqueId(), new TacticalInsertion(
+                            waitingToNameMap.put(e.getPlayer().getUniqueId(), new Insertion(
                                     e.getBlock().getLocation(), null, e.getPlayer().getUniqueId()));
                             langManager.sendSyncMessage(e.getPlayer(), ChatColor.GOLD, "That spot's fine. Chat the name you want to give to the tactical insertion.");
 
@@ -167,7 +171,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
             StringBuilder sb = new StringBuilder();
 
             // combine tacs
-            for (TacticalInsertion insertion : insertions.values()) {
+            for (Insertion insertion : insertions.values()) {
                 if (insertion.getOwner().equals(sender.getUniqueId())) {
                     sb.append(insertion.getName() + ", ");
                 }
@@ -241,9 +245,9 @@ public class WarpEventListener implements Listener, CommandExecutor {
         return TacPositionValidity.VALID;
     }
 
-    private boolean hasEnoughDistanceBetween(Location loc, Collection<TacticalInsertion> insertions) {
+    private boolean hasEnoughDistanceBetween(Location loc, Collection<Insertion> insertions) {
         Location secondLoc;
-        for (TacticalInsertion insertion : insertions) {
+        for (Insertion insertion : insertions) {
             secondLoc = insertion.getLoc();
             if (!isEnoughDistanceBetween(loc, secondLoc)) {
                 return false;

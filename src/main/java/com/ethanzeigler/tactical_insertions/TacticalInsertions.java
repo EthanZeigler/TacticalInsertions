@@ -4,20 +4,15 @@ import com.ethanzeigler.bukkit_plugin_utils.ConfigValue;
 import com.ethanzeigler.bukkit_plugin_utils.Language;
 import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
 import com.ethanzeigler.tactical_insertions.warps.WarpEventListener;
-import org.bukkit.ChatColor;
+import com.ethanzeigler.tactical_insertions.warps.WarpSaveFile;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class TacticalInsertions extends JavaPlugin implements Listener, CommandExecutor {
     private static PluginCore pluginCore;
-    private Map<Location, TacticalInsertion> insertions;
+    private Map<Location, Insertion> insertions;
 
 
     @Override
@@ -34,7 +29,12 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
         // get plugin mode
         boolean mode = (Boolean) pluginCore.getConfigManager().get(ConfigValue.IS_WARP_MODE);
         if (mode) {
-            // serlialize data
+            // serlialize data for warp mode
+            WarpSaveFile saveFile = new WarpSaveFile(pluginCore);
+
+            Collection<Insertion> data = insertions.values();
+            saveFile.setInsertions(data);
+            saveFile.save();
         }
     }
 
@@ -51,7 +51,15 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
 
         if (mode) {
             // warp mode listeners/commands
+            WarpSaveFile saveFile = new WarpSaveFile(pluginCore);
+
+            for(Insertion insertion: saveFile.getInsertions()) {
+                insertions.put(insertion.getLoc(), insertion);
+            }
+
             WarpEventListener listener = new WarpEventListener(this);
+            pluginCore.logToConsole("Successfully enabled warp mode: " + insertions.size() + " insertions loaded.");
+
         } else {
             // todo respawn mode
 
@@ -74,12 +82,11 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
         }
     }
 
-
     public static PluginCore getPluginCore() {
         return pluginCore;
     }
 
-    public Map<Location, TacticalInsertion> getInsertions() {
+    public Map<Location, Insertion> getInsertions() {
         return insertions;
     }
 }

@@ -1,6 +1,6 @@
 package com.ethanzeigler.tactical_insertions.respawns;
 
-import com.ethanzeigler.tactical_insertions.TacticalInsertion;
+import com.ethanzeigler.tactical_insertions.Insertion;
 import com.ethanzeigler.tactical_insertions.TacticalInsertions;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -13,17 +13,17 @@ import java.util.Map;
  * Created by ethan on 6/30/16.
  */
 public class RespawnEventListener {
-    private Map<Location, TacticalInsertion> insertions;
+    private Map<Location, Insertion> insertions;
     private TacticalInsertions plugin;
 
-    public RespawnEventListener(Map<Location, TacticalInsertion> insertions, TacticalInsertions plugin) {
+    public RespawnEventListener(Map<Location, Insertion> insertions, TacticalInsertions plugin) {
         this.insertions = insertions;
         this.plugin = plugin;
     }
 
     @EventHandler
     public void onPlayerRespawn(PlayerRespawnEvent e) {
-        for (TacticalInsertion insert : insertions.values()) {
+        for (Insertion insert : insertions.values()) {
             if (insert.getOwner().equals(e.getPlayer().getUniqueId())) {
                 e.setRespawnLocation(insert.getLoc());
                 // disable the insertion, then break the tac in a second.

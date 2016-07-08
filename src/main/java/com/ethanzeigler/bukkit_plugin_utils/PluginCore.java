@@ -1,5 +1,7 @@
 package com.ethanzeigler.bukkit_plugin_utils;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -21,12 +23,17 @@ public class PluginCore {
     private LanguageManager languageManager;
     private ConfigManager configManager;
     private Map<UUID, FileConfiguration> playerFileCache;
+    private String dirPath;
 
     public PluginCore(JavaPlugin plugin, boolean cachePlayerFiles, Language lang) {
         configManager = new ConfigManager(plugin);
         languageManager = new LanguageManager(plugin, Language.ENGLISH, (String) configManager.get(ConfigValue.PLUGIN_PREFIX));
         this.cachePlayerFiles = cachePlayerFiles;
         this.pluginPrefix = (String) configManager.get(ConfigValue.PLUGIN_PREFIX);
+        dirPath = plugin.getDataFolder().getPath() + "/";
+
+        // create data folder
+        new File(dirPath).mkdirs();
     }
 
     public FileConfiguration getPlayerFile(OfflinePlayer player) {
@@ -35,7 +42,7 @@ public class PluginCore {
             //todo fill
         } else {
             try {
-                File file = new File(String.format("Player Files/%s.txt", player.getUniqueId()));
+                File file = new File(String.format(dirPath + "Player Files/%s.txt", player.getUniqueId()));
                 file.createNewFile();
 
                 return YamlConfiguration.loadConfiguration(file);
@@ -50,7 +57,7 @@ public class PluginCore {
     public FileConfiguration getFile(String path) {
         File file = null;
         try {
-            file = new File(path);
+            file = new File(dirPath + path);
             file.createNewFile();
 
             return YamlConfiguration.loadConfiguration(file);
@@ -59,6 +66,14 @@ public class PluginCore {
             throw new RuntimeException(new IOException(
                     "Could not load file:" + file.getPath()));
         }
+    }
+
+    public void logToConsole(String msg) {
+        logToConsole(msg, null);
+    }
+
+    public void logToConsole(String msg, ChatColor startColor) {
+        Bukkit.getConsoleSender().sendMessage(languageManager.getFormattedMessage(msg));
     }
 
     public String getPluginPrefix() {
@@ -91,5 +106,9 @@ public class PluginCore {
 
     public ConfigManager getConfigManager() {
         return configManager;
+    }
+
+    public String getFileDirectory() {
+        return dirPath;
     }
 }

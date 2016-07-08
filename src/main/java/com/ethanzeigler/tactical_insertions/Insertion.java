@@ -11,18 +11,18 @@ import java.util.UUID;
 /**
  * Created by ethan on 6/28/16.
  */
-public class TacticalInsertion implements ConfigurationSerializable {
+public class Insertion implements ConfigurationSerializable {
     private Location loc;
     private String name;
     private UUID owner;
 
-    public TacticalInsertion(Location loc, String name, UUID owner) {
+    public Insertion(Location loc, String name, UUID owner) {
         this.loc = loc;
         this.name = name;
         this.owner = owner;
     }
 
-    public TacticalInsertion(Map<String, Object> data) {
+    public Insertion(Map<String, Object> data) {
 
         // todo finish deserialization
         loc = new Location(Bukkit.getWorld((String) data.get("loc.world")),
@@ -72,7 +72,7 @@ public class TacticalInsertion implements ConfigurationSerializable {
     @Override
     public Map<String, Object> serialize() {
         Map<String, Object> data = new HashMap<>();
-        data.put("loc.x", loc.getBlock());
+        data.put("loc.x", loc.getBlockX());
         data.put("loc.y", loc.getBlockY());
         data.put("loc.z", loc.getBlockZ());
         data.put("loc.world", loc.getWorld().getName());

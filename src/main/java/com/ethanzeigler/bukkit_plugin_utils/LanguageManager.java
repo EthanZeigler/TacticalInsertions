@@ -67,9 +67,13 @@ public class LanguageManager {
      * @param message    the message to send
      */
     public void sendMessage(CommandSender player, ChatColor startColor, String message) {
-        if (player instanceof Player || player instanceof ConsoleCommandSender) {
-            player.sendMessage(String.format("%s[%s] %s", startColor == null ? ChatColor.RESET : startColor, pluginPrefix, message));
-        }
+        System.out.println("Sending message");
+        System.out.println("format: " + getFormattedMessage(startColor, message));
+        player.sendMessage(getFormattedMessage(startColor, message));
+    }
+
+    public void sendMessage(CommandSender player, String message) {
+        sendMessage(player, null, message);
     }
 
     /**
@@ -82,6 +86,18 @@ public class LanguageManager {
      */
     public void sendSyncMessage(CommandSender player, ChatColor startColor, String message) {
         plugin.getServer().getScheduler().runTask(plugin, () -> sendMessage(player, startColor, message));
+    }
+
+    public void sendSyncMessgae(CommandSender player, String message) {
+        sendSyncMessage(player, null, message);
+    }
+
+    public String getFormattedMessage(String msg) {
+        return getFormattedMessage(null, msg);
+    }
+
+    public String getFormattedMessage(ChatColor startColor, String msg) {
+        return String.format("%s[%s] %s", startColor == null ? ChatColor.RESET : startColor, pluginPrefix, msg);
     }
 
     public Language getLanguage() {
