@@ -1,5 +1,7 @@
 package com.ethanzeigler.bukkit_plugin_utils;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import static com.ethanzeigler.bukkit_plugin_utils.ConfigValue.*;
@@ -23,6 +25,7 @@ public class ConfigManager {
         for (ConfigValue value : ConfigValue.values()) {
             // this is a really complicated way of checking if the value is valid
             // if the default value is of the same class as the config's value
+
             if (!value.defaultVal.getClass().isInstance(config.get(value.toString()))) {
                 config.set(value.toString(), value.defaultVal);
             }
@@ -37,6 +40,8 @@ public class ConfigManager {
         } else {
             // other operations
         }
+
+        saveConfig();
     }
 
     private void saveConfig() {
@@ -44,6 +49,19 @@ public class ConfigManager {
     }
 
     public Object get(ConfigValue path) {
-        return config.get(path.toString(), path.defaultVal);
+        switch (path) {
+            // tac block is stored as a string, but it is a Material
+            case TAC_BLOCK:
+                try {
+                    return Material.valueOf((String) config.get(path.toString()));
+                } catch (IllegalArgumentException | NullPointerException e) {
+                    System.out.println("Error: cannot resolve material " + config.get(path.toString()) + ". " +
+                            "Using default value: " + path.defaultVal.toString());
+                    return Material.valueOf((String) path.defaultVal);
+                }
+
+            default:
+                return config.get(path.toString(), path.defaultVal);
+        }
     }
 }

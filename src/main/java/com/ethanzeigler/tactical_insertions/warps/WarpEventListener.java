@@ -61,24 +61,29 @@ public class WarpEventListener implements Listener, CommandExecutor {
     public void onChat(AsyncPlayerChatEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
         if (waitingToNameMap.containsKey(uuid)) {
+            e.setCancelled(true);
             String[] words = e.getMessage().split(" ");
             if (words.length == 1) {
-                // the formatting is correct. One word. Add waiting tac to active list and change it's name
-                e.setCancelled(true);
-                Insertion insertion = waitingToNameMap.get(uuid);
-                insertion.setName(words[0].toLowerCase());
+                if (isValidName(words[0], uuid)) {
+                    // the formatting is correct. One word. Add waiting tac to active list and change it's name
+                    Insertion insertion = waitingToNameMap.get(uuid);
+                    insertion.setName(words[0].toLowerCase());
 
-                insertions.put(waitingToNameMap.get(uuid).getLoc(), waitingToNameMap.get(uuid));
-                // make block
-                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                    insertion.getLoc().getBlock().setType((Material) pluginCore.getConfigManager().get(ConfigValue.TAC_BLOCK));
-                });
-                // clear from waiting name
-                waitingToNameMap.remove(e.getPlayer().getUniqueId());
-                // send confirm message (sync, this is an async event)
-                langManager.sendSyncMessage(e.getPlayer(), ChatColor.GOLD, String.format("Your warp %s%s%s is set.",
-                                ChatColor.AQUA, insertion.getName(), ChatColor.GOLD));
-
+                    insertions.put(waitingToNameMap.get(uuid).getLoc(), waitingToNameMap.get(uuid));
+                    // make block
+                    plugin.getServer().getScheduler().runTask(plugin, () -> {
+                        insertion.getLoc().getBlock().setType((Material) pluginCore.getConfigManager().get(ConfigValue.TAC_BLOCK));
+                    });
+                    // clear from waiting name
+                    waitingToNameMap.remove(e.getPlayer().getUniqueId());
+                    // send confirm message (sync, this is an async event)
+                    langManager.sendSyncMessage(e.getPlayer(), ChatColor.GOLD, String.format("Your warp %s%s%s is set.",
+                            ChatColor.AQUA, insertion.getName(), ChatColor.GOLD));
+                } else {
+                    // name already used by player
+                    langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "You already have a" +
+                            " tactical insertion named " + ChatColor.WHITE + words[0]);
+                }
             } else {
                 // multiple words. Incorrect formatting (send sync, in async)
                     langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "The tactical insertion's name must" +
@@ -130,11 +135,6 @@ public class WarpEventListener implements Listener, CommandExecutor {
 
                     }
                 });
-
-
-                // tac is not too close to another
-                // add the player to the waiting list for naming
-
             } else {
                 // is waiting on naming another
                 e.setCancelled(true);
@@ -198,15 +198,24 @@ public class WarpEventListener implements Listener, CommandExecutor {
         } else {
             // search for warp from that player with the same name async
             plugin.getServer().getScheduler().runTaskAsynchronously(
-                    plugin, () -> insertions.values().stream().filter(
-                            insertion -> insertion.getOwner().equals(sender.getUniqueId()) &&
-                                    insertion.getName().toLowerCase().equals(args[0].toLowerCase())).forEach(insertion -> { // loop matches (will be only one)
-                        plugin.getServer().getScheduler().runTask(plugin, () -> {
-                            sender.teleport(insertion.getLoc()); // warped player
-                            langManager.sendMessage( //send message
-                                    sender, ChatColor.GOLD, "You warped to " + insertion.getName().toLowerCase());
-                        });
-                    }));
+                    plugin, () -> {
+                        for (Insertion insertion : insertions.values()) {
+                            if (insertion.getOwner().equals(sender.getUniqueId()) &&
+                                    insertion.getName().equalsIgnoreCase(args[0])) {
+                                // warp
+                                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                                    sender.teleport(insertion.getLoc().add(0, 1, 0));
+                                    langManager.sendMessage(
+                                            sender, ChatColor.GOLD, "You warped to " + insertion.getName().toLowerCase());
+                                });
+
+                                return;
+                            }
+                        }
+
+                        langManager.sendSyncMessage(sender, ChatColor.RED,
+                                "You don't have a warp named " + args[0].toLowerCase());
+                    });
         }
     }
 
@@ -261,6 +270,15 @@ public class WarpEventListener implements Listener, CommandExecutor {
     private boolean isEnoughDistanceBetween(Location loc1, Location loc2) {
         return getDistanceBetween(loc1, loc2) >=
                 (int) pluginCore.getConfigManager().get(ConfigValue.DISTANCE_FROM_TAC);
+    }
+
+    private boolean isValidName(String name, UUID owner) {
+        for (Insertion insertion: insertions.values()) {
+            if (insertion.getName().equalsIgnoreCase(name) && insertion.getOwner().equals(owner)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static double getDistanceBetween(Location loc1, Location loc2) {

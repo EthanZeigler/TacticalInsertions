@@ -3,10 +3,12 @@ package com.ethanzeigler.tactical_insertions;
 import com.ethanzeigler.bukkit_plugin_utils.ConfigValue;
 import com.ethanzeigler.bukkit_plugin_utils.Language;
 import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
+import com.ethanzeigler.tactical_insertions.universal.ParticleEffectManager;
 import com.ethanzeigler.tactical_insertions.warps.WarpEventListener;
 import com.ethanzeigler.tactical_insertions.warps.WarpSaveFile;
 import org.bukkit.Location;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerDropItemEvent;
@@ -22,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class TacticalInsertions extends JavaPlugin implements Listener, CommandExecutor {
     private static PluginCore pluginCore;
     private Map<Location, Insertion> insertions;
+    private ParticleEffectManager particleEffectManager;
 
 
     @Override
@@ -40,6 +43,8 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
 
     @Override
     public void onEnable() {
+        ConfigurationSerialization.registerClass(Insertion.class);
+
         // load plugin resources
         pluginCore = new PluginCore(this, false, Language.ENGLISH);
 
@@ -58,6 +63,8 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
             }
 
             WarpEventListener listener = new WarpEventListener(this);
+
+            particleEffectManager = new ParticleEffectManager(insertions, this);
             pluginCore.logToConsole("Successfully enabled warp mode: " + insertions.size() + " insertions loaded.");
 
         } else {

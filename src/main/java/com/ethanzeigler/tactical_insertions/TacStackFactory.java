@@ -13,11 +13,12 @@ import java.util.List;
  * Created by ethan on 6/29/16.
  */
 public class TacStackFactory {
-    public static ItemStack seed;
+    private static ItemStack seed;
+    private static Material seedMaterial = Material.REDSTONE_TORCH_ON;
 
     public static ItemStack getTacStack() {
         if (seed == null) {
-            seed = new ItemStack(Material.REDSTONE_TORCH_ON);
+            seed = new ItemStack(seedMaterial);
             // todo make stack material changeable
             ItemMeta meta = seed.getItemMeta();
             meta.setDisplayName(String.format("%s%sTactical Insertion", ChatColor.GOLD, ChatColor.BOLD));
@@ -31,5 +32,14 @@ public class TacStackFactory {
         } else {
             return seed.clone();
         }
+    }
+
+    public static void setSeedMaterial(Material seedMaterial) {
+        TacStackFactory.seedMaterial = seedMaterial;
+        seed = null;
+    }
+
+    public static Material getSeedMaterial() {
+        return seedMaterial;
     }
 }

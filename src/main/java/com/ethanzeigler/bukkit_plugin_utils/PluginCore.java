@@ -1,7 +1,9 @@
 package com.ethanzeigler.bukkit_plugin_utils;
 
+import com.ethanzeigler.tactical_insertions.TacStackFactory;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -34,6 +36,9 @@ public class PluginCore {
 
         // create data folder
         new File(dirPath).mkdirs();
+
+        // load config data
+        loadConfigData();
     }
 
     public FileConfiguration getPlayerFile(OfflinePlayer player) {
@@ -74,6 +79,10 @@ public class PluginCore {
 
     public void logToConsole(String msg, ChatColor startColor) {
         Bukkit.getConsoleSender().sendMessage(languageManager.getFormattedMessage(msg));
+    }
+
+    private void loadConfigData() {
+        TacStackFactory.setSeedMaterial(((Material) configManager.get(ConfigValue.TAC_BLOCK)));
     }
 
     public String getPluginPrefix() {

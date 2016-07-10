@@ -67,8 +67,6 @@ public class LanguageManager {
      * @param message    the message to send
      */
     public void sendMessage(CommandSender player, ChatColor startColor, String message) {
-        System.out.println("Sending message");
-        System.out.println("format: " + getFormattedMessage(startColor, message));
         player.sendMessage(getFormattedMessage(startColor, message));
     }
 

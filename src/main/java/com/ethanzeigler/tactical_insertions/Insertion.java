@@ -3,6 +3,7 @@ package com.ethanzeigler.tactical_insertions;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.SerializableAs;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +12,7 @@ import java.util.UUID;
 /**
  * Created by ethan on 6/28/16.
  */
+@SerializableAs("Insertion")
 public class Insertion implements ConfigurationSerializable {
     private Location loc;
     private String name;
@@ -25,8 +27,9 @@ public class Insertion implements ConfigurationSerializable {
     public Insertion(Map<String, Object> data) {
 
         // todo finish deserialization
-        loc = new Location(Bukkit.getWorld((String) data.get("loc.world")),
-                (double) data.get("loc.x"), (double) data.get("loc.y"), (double) data.get("loc.z"));
+        loc = new Location(Bukkit.getWorld((String) data.get("world")),
+                ((Integer)data.get("x")).doubleValue(), ((Integer)data.get("y")).doubleValue(),
+                ((Integer) data.get("z")).doubleValue());
 
         name = (String) data.get("name");
         owner = UUID.fromString((String) data.get("owner"));
@@ -72,10 +75,10 @@ public class Insertion implements ConfigurationSerializable {
     @Override
     public Map<String, Object> serialize() {
         Map<String, Object> data = new HashMap<>();
-        data.put("loc.x", loc.getBlockX());
-        data.put("loc.y", loc.getBlockY());
-        data.put("loc.z", loc.getBlockZ());
-        data.put("loc.world", loc.getWorld().getName());
+        data.put("x", loc.getBlockX());
+        data.put("y", loc.getBlockY());
+        data.put("z", loc.getBlockZ());
+        data.put("world", loc.getWorld().getName());
         data.put("name", name);
         data.put("owner", owner.toString());
 

@@ -10,7 +10,7 @@ public enum ConfigValue {
     DISTANCE_FROM_TAC("distance_from_other_tac_minimum", 3),
     ALLOW_TORCH_DROP("allow_players_to_drop_torches", false),
     IS_WARP_MODE("true=warp_mode/false=respawn_mode", true),
-    TAC_BLOCK("tac_block_material", Material.REDSTONE_TORCH_ON);
+    TAC_BLOCK("tac_block_material", Material.DIAMOND_BLOCK.toString());
 
     String path;
     Object defaultVal;
