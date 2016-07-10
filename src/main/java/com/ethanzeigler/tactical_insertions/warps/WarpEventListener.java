@@ -97,6 +97,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
         if (e.getBlock().getType().equals(tacMaterial)) {
             if (insertions.get(e.getBlock().getLocation()) != null) {
                 // todo this may cause concurrent mod issues. Investigate.
+                e.getBlock().getDrops().clear();
                 insertions.remove(e.getBlock().getLocation());
                 langManager.sendMessage(e.getPlayer(), ChatColor.GOLD, "The tactical insertion has been smashed.");
             }
@@ -204,7 +205,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
                                     insertion.getName().equalsIgnoreCase(args[0])) {
                                 // warp
                                 plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                    sender.teleport(insertion.getLoc().add(0, 1, 0));
+                                    sender.teleport(insertion.getLoc().clone().add(.5, 1, .5));
                                     langManager.sendMessage(
                                             sender, ChatColor.GOLD, "You warped to " + insertion.getName().toLowerCase());
                                 });

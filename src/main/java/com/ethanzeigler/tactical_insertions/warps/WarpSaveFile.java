@@ -22,6 +22,8 @@ public class WarpSaveFile {
     public WarpSaveFile(PluginCore pluginCore) {
         this.pluginCore = pluginCore;
         this.file = pluginCore.getFile(FILE_NAME);
+        file.options().header("This is a save data file for the positions of tactical\n" +
+                "insertions in warp mode. DO NOT EDIT IT.");
     }
 
     public Collection<Insertion> getInsertions() {
