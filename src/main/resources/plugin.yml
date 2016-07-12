@@ -11,6 +11,9 @@ commands:
     description: 'Warps the player to the specified tac'
   tacwarps:
     description: "Lists the player's warps"
+  tacinserts:
+    description: 'Holds moderator functions'
+    aliases: 'ti'
 permissions:
   tacticalinsertions.getblock:
     description: 'Allows the player to get a tactical insertion block'

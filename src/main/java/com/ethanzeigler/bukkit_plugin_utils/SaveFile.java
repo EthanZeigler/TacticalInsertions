@@ -3,6 +3,7 @@ package com.ethanzeigler.bukkit_plugin_utils;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * A wrapper framework for a Bukkit FileConfiguration file.
@@ -11,6 +12,7 @@ public class SaveFile {
     private String fileName;
     private PluginCore pluginCore;
     private FileConfiguration file;
+    private Map<String, Object> defaultValues;
 
     public SaveFile(PluginCore pluginCore, String fileName) {
         this.pluginCore = pluginCore;

@@ -1,6 +1,7 @@
 package com.ethanzeigler.bukkit_plugin_utils;
 
 import com.ethanzeigler.tactical_insertions.TacStackFactory;
+import com.ethanzeigler.tactical_insertions.universal.MainSaveFile;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -26,13 +27,16 @@ public class PluginCore {
     private ConfigManager configManager;
     private Map<UUID, FileConfiguration> playerFileCache;
     private String dirPath;
+    private MainSaveFile mainSaveFile;
 
     public PluginCore(JavaPlugin plugin, boolean cachePlayerFiles, Language lang) {
+        dirPath = plugin.getDataFolder().getPath() + "/";
         configManager = new ConfigManager(plugin);
         languageManager = new LanguageManager(plugin, Language.ENGLISH, (String) configManager.get(ConfigValue.PLUGIN_PREFIX));
+        mainSaveFile = new MainSaveFile(this);
+
         this.cachePlayerFiles = cachePlayerFiles;
         this.pluginPrefix = (String) configManager.get(ConfigValue.PLUGIN_PREFIX);
-        dirPath = plugin.getDataFolder().getPath() + "/";
 
         // create data folder
         new File(dirPath).mkdirs();
@@ -71,6 +75,10 @@ public class PluginCore {
             throw new RuntimeException(new IOException(
                     "Could not load file:" + file.getPath()));
         }
+    }
+
+    public MainSaveFile getMainSaveFile() {
+        return mainSaveFile;
     }
 
     public void logToConsole(String msg) {

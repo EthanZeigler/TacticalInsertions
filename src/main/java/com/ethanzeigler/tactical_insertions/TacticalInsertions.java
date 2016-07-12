@@ -3,6 +3,7 @@ package com.ethanzeigler.tactical_insertions;
 import com.ethanzeigler.bukkit_plugin_utils.ConfigValue;
 import com.ethanzeigler.bukkit_plugin_utils.Language;
 import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
+import com.ethanzeigler.tactical_insertions.universal.MainSaveFile;
 import com.ethanzeigler.tactical_insertions.universal.ParticleEffectManager;
 import com.ethanzeigler.tactical_insertions.warps.WarpEventListener;
 import com.ethanzeigler.tactical_insertions.warps.WarpSaveFile;
@@ -75,7 +76,14 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
 
         // register listeners (this system is idiotic...)
         getServer().getPluginManager().registerEvents(this, this);
+    }
 
+    private void checkUnsafeChanges() {
+        MainSaveFile mainSaveFile = pluginCore.getMainSaveFile();
+
+        /*
+        check for material change. This is considered a fatal error and will 
+         */
     }
 
     @EventHandler

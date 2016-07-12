@@ -4,6 +4,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.omg.IOP.ExceptionDetailMessage;
+
 import static com.ethanzeigler.bukkit_plugin_utils.ConfigValue.*;
 
 /**
@@ -62,6 +64,37 @@ public class ConfigManager {
 
             default:
                 return config.get(path.toString(), path.defaultVal);
+        }
+    }
+
+    public void set(ConfigValue path, Object value) {
+        // set storage method
+        if (path.isStoredDifferently) {
+            // stored differently than the actual value
+            switch (path) {
+                case TAC_BLOCK:
+                    if (!value.getClass().isInstance(path.defaultVal.getClass())) {
+                        throw new IllegalArgumentException(
+                                String.format("The value %s is not legal for the field %s", value, path));
+                    }
+                    break;
+            }
+
+            // is valid if it has gone this far
+
+            switch (path) {
+                case TAC_BLOCK:
+                    config.set(path.toString(), value.toString());
+            }
+        } else {
+            // normal data storage
+            if (!value.getClass().isInstance(path.defaultVal)) {
+                throw new IllegalArgumentException(
+                        String.format("The value %s is not legal for the field %s", value, path));
+            }
+
+            // valid data
+            config.set(path.toString(), value);
         }
     }
 }
