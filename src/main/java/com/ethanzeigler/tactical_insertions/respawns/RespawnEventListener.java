@@ -31,9 +31,12 @@ public class RespawnEventListener {
                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                     Block block = insert.getLoc().getBlock();
                     block.getDrops().clear();
+                    block.breakNaturally();
                 }, 20);
             }
         }
     }
+
+
 }
 

@@ -1,9 +1,10 @@
 package com.ethanzeigler.tactical_insertions;
 
 import com.ethanzeigler.bukkit_plugin_utils.ConfigValue;
-import com.ethanzeigler.bukkit_plugin_utils.Language;
+import com.ethanzeigler.bukkit_plugin_utils.language.Language;
 import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
 import com.ethanzeigler.tactical_insertions.universal.MainSaveFile;
+import com.ethanzeigler.tactical_insertions.universal.ModCommandListener;
 import com.ethanzeigler.tactical_insertions.universal.ParticleEffectManager;
 import com.ethanzeigler.tactical_insertions.warps.WarpEventListener;
 import com.ethanzeigler.tactical_insertions.warps.WarpSaveFile;
@@ -63,7 +64,7 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
                 insertions.put(insertion.getLoc(), insertion);
             }
 
-            WarpEventListener listener = new WarpEventListener(this);
+            WarpEventListener listener = new WarpEventListener(this, eventManager);
 
             particleEffectManager = new ParticleEffectManager(insertions, this);
             pluginCore.logToConsole("Successfully enabled warp mode: " + insertions.size() + " insertions loaded.");
@@ -73,6 +74,8 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
 
         }
 
+        // register mod commands
+        new ModCommandListener(pluginCore, this);
 
         // register listeners (this system is idiotic...)
         getServer().getPluginManager().registerEvents(this, this);

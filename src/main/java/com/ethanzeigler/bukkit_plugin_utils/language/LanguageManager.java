@@ -1,62 +1,53 @@
-package com.ethanzeigler.bukkit_plugin_utils;
+package com.ethanzeigler.bukkit_plugin_utils.language;
 
+import com.ethanzeigler.bukkit_plugin_utils.FileClassLoader;
+import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
+import org.apache.commons.codec.language.bm.Lang;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.boss.BossBar;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
+import org.bukkit.craftbukkit.v1_9_R2.boss.CraftBossBar;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
+import java.util.ResourceBundle;
 
 /**
  * A language manager for Bukkit plugins
  */
 public class LanguageManager {
-    private FileConfiguration langMap;
     private JavaPlugin plugin;
     private Language language;
     private String pluginPrefix;
-    public static final String REPLACE_SEPERATOR = "#$";
+    private MessageProvider messageProvider;
 
     public LanguageManager(JavaPlugin plugin, Language language, String pluginPrefix) {
         this.plugin = plugin;
         this.language = language;
         this.pluginPrefix = pluginPrefix;
-        langMap = YamlConfiguration.loadConfiguration(new File(language.fileName));
+
+        // copy language files to the plugin directory so they can be edited.
+        for (Language toCopy: Language.values()) {
+            plugin.saveResource(Language.getResourceBundleDir() + toCopy.getFileName(), false);
+        }
+
+        messageProvider = new I18N(new FileClassLoader(
+                new File(plugin.getDataFolder().toPath() + File.separator + Language.getResourceBundleDir()).toPath()), language);
+
+        System.out.println("Printing keys:...");
+        ((I18N) messageProvider).printAllKeys();
     }
+
 
     /**
      * Gets the message template if it exists from the current language file.
-     * If it does not exist, an {@link IllegalArgumentException} will be thrown.
      *
      * @param msg the message template to get
      * @return the message of that template
      */
     public String getMessage(String msg) {
-        String message = (String) langMap.get(msg);
-        if (message == null) throw new RuntimeException(new IllegalArgumentException(
-                String.format("Message template \"%s\" could not be found in the \"%s\" file", msg, language)));
-
-        return message;
-    }
-
-    /**
-     * Replaces placeholders in messages separated by {@link LanguageManager#REPLACE_SEPERATOR} (#$)
-     *
-     * @param template the String that needs placeholders replaced
-     * @param args     The replacing placeholder and replacement in the format "placeholder#$replacer"
-     * @return the template with the replaced values
-     */
-    public static String replaceValues(String template, String... args) {
-        String output = new String(template);
-        for (int i = 0; i < args.length; i++) {
-            String[] sides = args[i].split(REPLACE_SEPERATOR);
-            assert sides.length == 2;
-            output = output.replace(sides[0], sides[1]);
-        }
-        return output;
+        return (String) messageProvider.get(msg);
     }
 
     /**

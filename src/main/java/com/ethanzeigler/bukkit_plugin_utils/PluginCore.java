@@ -1,5 +1,7 @@
 package com.ethanzeigler.bukkit_plugin_utils;
 
+import com.ethanzeigler.bukkit_plugin_utils.language.Language;
+import com.ethanzeigler.bukkit_plugin_utils.language.LanguageManager;
 import com.ethanzeigler.tactical_insertions.TacStackFactory;
 import com.ethanzeigler.tactical_insertions.universal.MainSaveFile;
 import org.bukkit.Bukkit;

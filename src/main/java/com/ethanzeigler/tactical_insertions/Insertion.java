@@ -25,8 +25,6 @@ public class Insertion implements ConfigurationSerializable {
     }
 
     public Insertion(Map<String, Object> data) {
-
-        // todo finish deserialization
         loc = new Location(Bukkit.getWorld((String) data.get("world")),
                 ((Integer)data.get("x")).doubleValue(), ((Integer)data.get("y")).doubleValue(),
                 ((Integer) data.get("z")).doubleValue());

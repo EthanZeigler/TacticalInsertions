@@ -2,13 +2,6 @@ package com.ethanzeigler.tactical_insertions.universal;
 
 import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
 import com.ethanzeigler.bukkit_plugin_utils.SaveFile;
-import com.ethanzeigler.tactical_insertions.Insertion;
-import org.bukkit.configuration.file.FileConfiguration;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * Holds the plugin's core save data
@@ -17,7 +10,7 @@ public class MainSaveFile extends SaveFile {
     private static final String FILE_NAME = "general_save_data.yml";
     private static final String HEADER = "DO NOT EDIT THE CONTENTS OF THIS FILE";
 
-    enum Value {
+    enum Path {
         LAST_BLOCK_MAT("tactical_insertions.last_insert_material", null),
         LAST_RUN_VERSION("last_run_version", 1.0),
         /**
@@ -28,7 +21,7 @@ public class MainSaveFile extends SaveFile {
         String path;
         Object defaultValue;
 
-        Value(String path, Object defaultValue) {
+        Path(String path, Object defaultValue) {
             this.defaultValue = defaultValue;
             this.path = path;
         }
@@ -51,7 +44,7 @@ public class MainSaveFile extends SaveFile {
         super(pluginCore, FILE_NAME);
     }
 
-    public Object get(Value value) {
+    public Object get(Path value) {
         switch (value) {
             case LAST_RUN_MODE:
                 String mode = (String) getRawData(value);
@@ -66,7 +59,20 @@ public class MainSaveFile extends SaveFile {
         }
     }
 
-    private Object getRawData(Value value) {
+    public void set(Path path, Object value) {
+        switch (path) {
+            case LAST_RUN_MODE:
+                if (value instanceof String &&
+                        (((String) value).equalsIgnoreCase("WARP") || ((String) value).equalsIgnoreCase("RESPAWN"))) {
+                    getFile().set(path.toString(), value);
+                }
+
+            default:
+                getFile().set(path.toString(), value);
+        }
+    }
+
+    private Object getRawData(Path value) {
         return getFile().get(value.toString(), value.defaultValue);
     }
 }
