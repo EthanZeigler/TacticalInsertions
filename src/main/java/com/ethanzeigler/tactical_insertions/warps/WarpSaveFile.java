@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class WarpSaveFile {
     private static final String TAC_PATH = "insertions";
-    private static final String FILE_NAME = "warp_save_data.yml";
+    private static final String FILE_NAME = "insertion_save_data.yml";
 
     private PluginCore pluginCore;
     FileConfiguration file;
@@ -23,7 +23,7 @@ public class WarpSaveFile {
         this.pluginCore = pluginCore;
         this.file = pluginCore.getFile(FILE_NAME);
         file.options().header("This is a save data file for the positions of tactical\n" +
-                "insertions in warp mode. DO NOT EDIT IT.");
+                "insertions. DO NOT EDIT IT.");
     }
 
     public Collection<Insertion> getInsertions() {

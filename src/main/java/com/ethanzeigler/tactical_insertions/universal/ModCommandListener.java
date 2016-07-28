@@ -43,7 +43,10 @@ public class ModCommandListener implements CommandExecutor {
      */
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (args.length < 1) {
+        if (!sender.hasPermission("tacticalinsertions.moderator")) {
+            langManager.getAndSendMessage(sender, "not-moderator-denied");
+            return true;
+        } else if (args.length < 1) {
             langManager.getAndSendMessage(sender, "mod-commands-subcommand-warning");
             return true;
         }

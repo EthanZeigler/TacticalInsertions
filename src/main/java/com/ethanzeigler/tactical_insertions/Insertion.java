@@ -29,7 +29,11 @@ public class Insertion implements ConfigurationSerializable {
                 ((Integer)data.get("x")).doubleValue(), ((Integer)data.get("y")).doubleValue(),
                 ((Integer) data.get("z")).doubleValue());
 
-        name = (String) data.get("name");
+        Object obj = data.get("name");
+        if (obj != null) {
+            name = (String) data.get("name");
+        }
+
         owner = UUID.fromString((String) data.get("owner"));
     }
 

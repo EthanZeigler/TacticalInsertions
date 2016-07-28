@@ -43,6 +43,8 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
             Collection<Insertion> data = insertions.values();
             saveFile.setInsertions(data);
             saveFile.save();
+        } else {
+            //
         }
 
         saveConfig();
