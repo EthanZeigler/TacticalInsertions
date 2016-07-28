@@ -88,8 +88,8 @@ public class WarpEventListener implements Listener, CommandExecutor {
                 }
             } else {
                 // multiple words. Incorrect formatting (send sync, in async)
-                    langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "The tactical insertion's name must" +
-                            " be one word.");
+                langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "The tactical insertion's name must" +
+                        " be one word.");
             }
         }
     }
@@ -98,36 +98,41 @@ public class WarpEventListener implements Listener, CommandExecutor {
     public void onBlockPlace(BlockPlaceEvent e) {
         if (TacStackFactory.isTacStack(e.getItemInHand())) {
             // is a tactical insertion
-            if (!waitingToNameMap.containsKey(e.getPlayer().getUniqueId())) {
-                // is not waiting on naming another, name tac state
-                e.setCancelled(true);
-                // run validity check
-                plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                    TacPositionValidity validity = TacPositionValidity.validate(e.getBlock().getLocation(),
-                            (Integer) pluginCore.getConfigManager().get(ConfigValue.DISTANCE_FROM_TAC),
-                            insertions.values(), waitingToNameMap.values());
+            if (e.getPlayer().hasPermission("tacticalinsertions.placeblock")) {
+                if (!waitingToNameMap.containsKey(e.getPlayer().getUniqueId())) {
+                    // is not waiting on naming another, name tac state
+                    e.setCancelled(true);
+                    // run validity check
+                    plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                        TacPositionValidity validity = TacPositionValidity.validate(e.getBlock().getLocation(),
+                                (Integer) pluginCore.getConfigManager().get(ConfigValue.DISTANCE_FROM_TAC),
+                                insertions.values(), waitingToNameMap.values());
 
-                    switch(validity) {
-                        case VALID:
-                            waitingToNameMap.put(e.getPlayer().getUniqueId(), new Insertion(
-                                    e.getBlock().getLocation(), null, e.getPlayer().getUniqueId()));
-                            langManager.sendSyncMessage(e.getPlayer(), ChatColor.GOLD, "That spot's fine. Chat the name you want to give to the tactical insertion.");
+                        switch (validity) {
+                            case VALID:
+                                waitingToNameMap.put(e.getPlayer().getUniqueId(), new Insertion(
+                                        e.getBlock().getLocation(), null, e.getPlayer().getUniqueId()));
+                                langManager.sendSyncMessage(e.getPlayer(), ChatColor.GOLD, "That spot's fine. Chat the name you want to give to the tactical insertion.");
 
-                            // remove from inventory synchronously
-                            plugin.getServer().getScheduler().runTask(plugin, () ->
-                                    e.getPlayer().getInventory().remove(TacStackFactory.getTacStack()));
-                            break;
+                                // remove from inventory synchronously
+                                plugin.getServer().getScheduler().runTask(plugin, () ->
+                                        e.getPlayer().getInventory().remove(TacStackFactory.getTacStack()));
+                                break;
 
-                        case TOO_CLOSE_TO_EXISTING:
-                            langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "That's too close to another tactical insertion");
-                            break;
+                            case TOO_CLOSE_TO_EXISTING:
+                                langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "That's too close to another tactical insertion");
+                                break;
 
-                        case TOO_CLOSE_TO_PROPOSED:
-                            langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "That's too close to another tactical insertion someone is currently naming");
-                            break;
+                            case TOO_CLOSE_TO_PROPOSED:
+                                langManager.sendSyncMessage(e.getPlayer(), ChatColor.RED, "That's too close to another tactical insertion someone is currently naming");
+                                break;
 
-                    }
-                });
+                        }
+                    });
+                } else {
+                    // does not have the necessary permission
+                    langManager.getAndSendMessage(e.getPlayer(), "block-place-denied");
+                }
             } else {
                 // is waiting on naming another
                 e.setCancelled(true);
@@ -210,7 +215,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
 
 
     private boolean isValidName(String name, UUID owner) {
-        for (Insertion insertion: insertions.values()) {
+        for (Insertion insertion : insertions.values()) {
             if (insertion.getName().equalsIgnoreCase(name) && insertion.getOwner().equals(owner)) {
                 return false;
             }

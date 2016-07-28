@@ -17,5 +17,10 @@ commands:
 permissions:
   tacticalinsertions.getblock:
     description: 'Allows the player to get a tactical insertion block'
+  tacticalinsertions.moderator:
+    description: 'Gives full access to the plugin'
+  tacticalinsertions.placeblock:
+    description: 'Allows a player to place a tactical insertion'
+
 
 

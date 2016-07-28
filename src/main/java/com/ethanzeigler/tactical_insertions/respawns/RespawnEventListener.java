@@ -55,11 +55,15 @@ public class RespawnEventListener implements Listener {
     @EventHandler
     public void onInsertionPlace(BlockPlaceEvent e) {
         if (TacStackFactory.isTacStack(e.getItemInHand())) {
-            if (!playerHasInsertion(e.getPlayer())) {
-                insertions.put(e.getBlock().getLocation(), new Insertion(e.getBlock().getLocation(), null, e.getPlayer().getUniqueId()));
-                lang.getAndSendMessage(e.getPlayer(), "insertion-placed");
+            if (e.getPlayer().hasPermission("tacticalinsertions.placeblock")) {
+                if (!playerHasInsertion(e.getPlayer())) {
+                    insertions.put(e.getBlock().getLocation(), new Insertion(e.getBlock().getLocation(), null, e.getPlayer().getUniqueId()));
+                    lang.getAndSendMessage(e.getPlayer(), "insertion-placed");
+                } else {
+                    lang.getAndSendMessage(e.getPlayer(), "already-have-insertion");
+                }
             } else {
-                lang.getAndSendMessage(e.getPlayer(), "already-have-insertion");
+                lang.getAndSendMessage(e.getPlayer(), "block-place-denied");
             }
         }
     }
