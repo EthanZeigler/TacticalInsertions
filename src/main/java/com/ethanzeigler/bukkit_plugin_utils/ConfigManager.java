@@ -24,6 +24,23 @@ public class ConfigManager {
     private void loadConfig() {
         config = plugin.getConfig();
 
+        config.options().header("This is the TacticalInsertions configuration. Please know there is a setting " +
+                "that is not listed here. /n There are 2 modes to this plugin: warp and respawn. Warp mode allows your " +
+                "players to set warps that can be warped to at any time with their names.\n" +
+                "Respawn mode allows a player to only set one warp that they will respawn at when they die. It cannot " +
+                "be warped to on demand. This setting is controlled using the //ti chngemode command.\n" +
+                "===========================================\n" +
+                "\n" +
+                "The following are descriptions of each setting besides the mode.\n" +
+                "plugin_prefix = the prefix the plugin uses in chat\n" +
+                "distance_from_other_tac_minimum = The minimum distance insertions much be apart. Changing will " +
+                "not affect existing insertions\n" +
+                "allow_players_to_drop_insertions = whether or not players are allowed to drop the insertion\n" +
+                "tac_block_material = the material the tactical insertion is made of. It MUST be placeable or the " +
+                "plugin will behave oddly. These are case sensitive. Find the full material list @ " +
+                "https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html. ==PLEASE READ!!! CHANGING THIS WILL " +
+                "DELETE ALL WARPS IN THE WORLD. BE CAREFUL!!! PLEASE READ==");
+
         for (ConfigValue value : ConfigValue.values()) {
             // this is a really complicated way of checking if the value is valid
             // if the default value is of the same class as the config's value

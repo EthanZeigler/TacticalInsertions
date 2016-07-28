@@ -43,7 +43,7 @@ public class I18N implements MessageProvider {
         System.out.println(messages.getBaseBundleName() + messages.getLocale());
         Enumeration<String> keys = messages.getKeys();
         while (keys.hasMoreElements()) {
-            sb.append(messages.getKeys().nextElement() + ",");
+            sb.append(keys.nextElement() + ",");
         }
         System.out.println(sb.toString());
         System.out.println("Done");

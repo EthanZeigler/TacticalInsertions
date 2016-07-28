@@ -1,5 +1,6 @@
 package com.ethanzeigler.tactical_insertions.universal;
 import com.ethanzeigler.tactical_insertions.Insertion;
+import com.ethanzeigler.tactical_insertions.TacticalInsertions;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -16,9 +17,9 @@ public class ParticleEffectManager {
     private Map<Location, Insertion> insertions;
     private JavaPlugin plugin;
 
-    public ParticleEffectManager(Map<Location, Insertion> insertions, JavaPlugin plugin) {
-        this.insertions = insertions;
+    public ParticleEffectManager(TacticalInsertions plugin) {
         this.plugin = plugin;
+        this.insertions = plugin.getInsertions();
 
         plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             Collection<? extends Player> players = Bukkit.getOnlinePlayers();

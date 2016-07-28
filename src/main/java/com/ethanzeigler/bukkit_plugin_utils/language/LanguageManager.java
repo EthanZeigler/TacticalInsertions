@@ -50,6 +50,10 @@ public class LanguageManager {
         return (String) messageProvider.get(msg);
     }
 
+    public void getAndSendMessage(CommandSender player, String key) {
+        sendMessage(player, getMessage(key));
+    }
+
     /**
      * Sends a formatted message to the player
      *

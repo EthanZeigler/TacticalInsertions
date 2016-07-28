@@ -1,8 +1,11 @@
 package com.ethanzeigler.tactical_insertions;
 
+import com.ethanzeigler.bukkit_plugin_utils.ConfigManager;
 import com.ethanzeigler.bukkit_plugin_utils.ConfigValue;
 import com.ethanzeigler.bukkit_plugin_utils.language.Language;
 import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
+import com.ethanzeigler.tactical_insertions.respawns.RespawnEventListener;
+import com.ethanzeigler.tactical_insertions.universal.AllModeListener;
 import com.ethanzeigler.tactical_insertions.universal.MainSaveFile;
 import com.ethanzeigler.tactical_insertions.universal.ModCommandListener;
 import com.ethanzeigler.tactical_insertions.universal.ParticleEffectManager;
@@ -32,7 +35,7 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
     @Override
     public void onDisable() {
         // get plugin mode
-        boolean mode = (Boolean) pluginCore.getConfigManager().get(ConfigValue.IS_WARP_MODE);
+        boolean mode = (Boolean) pluginCore.getMainSaveFile().get(MainSaveFile.Path.IS_WARP_MODE);
         if (mode) {
             // serlialize data for warp mode
             WarpSaveFile saveFile = new WarpSaveFile(pluginCore);
@@ -41,6 +44,9 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
             saveFile.setInsertions(data);
             saveFile.save();
         }
+
+        saveConfig();
+        pluginCore.getMainSaveFile().save();
     }
 
     @Override
@@ -51,7 +57,7 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
         pluginCore = new PluginCore(this, false, Language.ENGLISH);
 
         // get plugin mode
-        boolean mode = (Boolean) pluginCore.getConfigManager().get(ConfigValue.IS_WARP_MODE);
+        boolean mode = (Boolean) pluginCore.getMainSaveFile().get(MainSaveFile.Path.IS_WARP_MODE);
 
         insertions = new ConcurrentHashMap<>();
         //todo retrieve values
@@ -64,34 +70,48 @@ public class TacticalInsertions extends JavaPlugin implements Listener, CommandE
                 insertions.put(insertion.getLoc(), insertion);
             }
 
-            WarpEventListener listener = new WarpEventListener(this, eventManager);
+            WarpEventListener listener = new WarpEventListener(this);
 
-            particleEffectManager = new ParticleEffectManager(insertions, this);
             pluginCore.logToConsole("Successfully enabled warp mode: " + insertions.size() + " insertions loaded.");
 
         } else {
             // todo respawn mode
+            new RespawnEventListener(this);
 
+            pluginCore.logToConsole("Successfully enabled respawn mode");
         }
+
+        particleEffectManager = new ParticleEffectManager(this);
+
+        // check unsafe changes to config
+        resolveUnsafeChanges(pluginCore, insertions);
 
         // register mod commands
         new ModCommandListener(pluginCore, this);
 
         // register listeners (this system is idiotic...)
         getServer().getPluginManager().registerEvents(this, this);
+
+        // register listeners for both modes
+        new AllModeListener(this);
     }
 
-    private void checkUnsafeChanges() {
-        MainSaveFile mainSaveFile = pluginCore.getMainSaveFile();
+    public void resolveUnsafeChanges(PluginCore core, Map<Location, Insertion> insertions) {
+        MainSaveFile main = core.getMainSaveFile();
+        ConfigManager config = core.getConfigManager();
 
-        /*
-        check for material change. This is considered a fatal error and will 
-         */
+        // material change
+        if (!config.get(ConfigValue.TAC_BLOCK).equals(main.get(MainSaveFile.Path.LAST_BLOCK_MAT))) {
+            core.logToConsole("The block material has changed. Deleting all insertions.");
+            ModCommandListener.deleteAllInsertions(insertions);
+            main.set(MainSaveFile.Path.LAST_BLOCK_MAT, config.get(ConfigValue.TAC_BLOCK));
+            main.save();
+        }
     }
 
     @EventHandler
     public void onBlockDrop(PlayerDropItemEvent e) {
-        if ((Boolean) pluginCore.getConfigManager().get(ConfigValue.ALLOW_TORCH_DROP)) {
+        if (!(boolean) pluginCore.getConfigManager().get(ConfigValue.ALLOW_TORCH_DROP)) {
             if (e.getItemDrop().getItemStack().equals(TacStackFactory.getTacStack())) {
                 e.setCancelled(true);
                 // we cancelled the drop, but we still want to get rid of the torch.

@@ -2,21 +2,23 @@ package com.ethanzeigler.tactical_insertions.universal;
 
 import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
 import com.ethanzeigler.bukkit_plugin_utils.SaveFile;
+import org.apache.commons.lang.ObjectUtils;
+import org.bukkit.Material;
 
 /**
  * Holds the plugin's core save data
  */
 public class MainSaveFile extends SaveFile {
     private static final String FILE_NAME = "general_save_data.yml";
-    private static final String HEADER = "DO NOT EDIT THE CONTENTS OF THIS FILE";
+    private static final String HEADER = "DO NOT EDIT THE CONTENTS OF THIS FILE. YOU WILL BREAK THE PLUGIN.";
 
-    enum Path {
-        LAST_BLOCK_MAT("tactical_insertions.last_insert_material", null),
+    public enum Path {
+        LAST_BLOCK_MAT("tactical_insertions.last_insert_material", Material.DIAMOND_BLOCK.toString()),
         LAST_RUN_VERSION("last_run_version", 1.0),
         /**
          * The last run mode. If true, warp mode. If false, respawn.
          */
-        LAST_RUN_MODE("tactical_insertions.last_run_mode", "WARP");
+        IS_WARP_MODE("tactical_insertions.is_warp_mode", true);
 
         String path;
         Object defaultValue;
@@ -46,14 +48,12 @@ public class MainSaveFile extends SaveFile {
 
     public Object get(Path value) {
         switch (value) {
-            case LAST_RUN_MODE:
-                String mode = (String) getRawData(value);
-                if (mode.equalsIgnoreCase("WARP")) {
-                    return true;
-                } else {
-                    return false;
+            case LAST_BLOCK_MAT:
+                try {
+                    return Material.valueOf((String) getRawData(value));
+                } catch (IllegalArgumentException | NullPointerException | ClassCastException e) {
+                    return value.defaultValue;
                 }
-
             default:
                 return getRawData(value);
         }
@@ -61,11 +61,9 @@ public class MainSaveFile extends SaveFile {
 
     public void set(Path path, Object value) {
         switch (path) {
-            case LAST_RUN_MODE:
-                if (value instanceof String &&
-                        (((String) value).equalsIgnoreCase("WARP") || ((String) value).equalsIgnoreCase("RESPAWN"))) {
-                    getFile().set(path.toString(), value);
-                }
+            case LAST_BLOCK_MAT:
+                getFile().set(path.toString(), value.toString());
+                break;
 
             default:
                 getFile().set(path.toString(), value);

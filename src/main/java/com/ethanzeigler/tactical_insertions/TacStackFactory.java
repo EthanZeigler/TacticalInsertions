@@ -3,6 +3,7 @@ package com.ethanzeigler.tactical_insertions;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -32,6 +33,26 @@ public class TacStackFactory {
         } else {
             return seed.clone();
         }
+    }
+
+    public static boolean isTacStack(ItemStack stack) {
+        if (stack != null) {
+            ItemStack changedStack = getTacStack();
+            changedStack.setAmount(stack.getAmount());
+
+            return stack.equals(changedStack);
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean containsTacStack(Inventory inv) {
+        for (ItemStack stack : inv.getStorageContents()) {
+            if (isTacStack(stack)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static void setSeedMaterial(Material seedMaterial) {
