@@ -2,6 +2,7 @@ package com.ethanzeigler.bukkit_plugin_utils.language;
 
 import com.ethanzeigler.bukkit_plugin_utils.FileClassLoader;
 import com.ethanzeigler.bukkit_plugin_utils.PluginCore;
+import com.ethanzeigler.tactical_insertions.TacticalInsertions;
 import org.apache.commons.codec.language.bm.Lang;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -34,9 +35,6 @@ public class LanguageManager {
 
         messageProvider = new I18N(new FileClassLoader(
                 new File(plugin.getDataFolder().toPath() + File.separator + Language.getResourceBundleDir()).toPath()), language);
-
-        System.out.println("Printing keys:...");
-        ((I18N) messageProvider).printAllKeys();
     }
 
 
@@ -47,7 +45,13 @@ public class LanguageManager {
      * @return the message of that template
      */
     public String getMessage(String msg) {
-        return (String) messageProvider.get(msg);
+        try {
+            return (String) messageProvider.get(msg);
+        } catch (Exception e) {
+            TacticalInsertions.getPluginCore().logToConsole("Something went wrong with the language file. Delete your " +
+                    "language files and restart the server. The problem will be fixed.");
+            return "Something's wrong. Tell a server administrator.";
+        }
     }
 
     public void getAndSendMessage(CommandSender player, String key) {

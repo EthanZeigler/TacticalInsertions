@@ -38,18 +38,6 @@ public class I18N implements MessageProvider {
         return formatter.format(replacements);
     }
 
-    public void printAllKeys() {
-        StringBuilder sb = new StringBuilder();
-        System.out.println(messages.getBaseBundleName() + messages.getLocale());
-        Enumeration<String> keys = messages.getKeys();
-        while (keys.hasMoreElements()) {
-            sb.append(keys.nextElement() + ",");
-        }
-        System.out.println(sb.toString());
-        System.out.println("Done");
-
-    }
-
     public Language getLanguage() {
         return lang;
     }

@@ -30,8 +30,9 @@ public class PluginCore {
     private Map<UUID, FileConfiguration> playerFileCache;
     private String dirPath;
     private MainSaveFile mainSaveFile;
+    private PluginCorePlugin plugin;
 
-    public PluginCore(JavaPlugin plugin, boolean cachePlayerFiles, Language lang) {
+    public PluginCore(PluginCorePlugin plugin, boolean cachePlayerFiles, Language lang) {
         dirPath = plugin.getDataFolder().getPath() + "/";
         configManager = new ConfigManager(plugin);
         languageManager = new LanguageManager(plugin, Language.ENGLISH, (String) configManager.get(ConfigValue.PLUGIN_PREFIX));
@@ -45,6 +46,20 @@ public class PluginCore {
 
         // load config data
         loadConfigData();
+
+        if (hasVersionUpdated()) {
+            plugin.onVersionUpdate();
+        }
+    }
+
+    public boolean hasVersionUpdated() {
+        FileConfiguration file = getFile("version_save_data.yml");
+        if (!file.get("latest_version").equals(plugin.getDescription().getVersion())) {
+            file.set("latest_version", plugin.getDescription().getVersion());
+            return true;
+        }
+
+        return false;
     }
 
     public FileConfiguration getPlayerFile(OfflinePlayer player) {

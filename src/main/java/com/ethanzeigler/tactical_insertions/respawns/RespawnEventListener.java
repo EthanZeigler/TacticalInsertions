@@ -61,6 +61,7 @@ public class RespawnEventListener implements Listener {
                     lang.getAndSendMessage(e.getPlayer(), "insertion-placed");
                 } else {
                     lang.getAndSendMessage(e.getPlayer(), "already-have-insertion");
+                    e.setCancelled(true);
                 }
             } else {
                 lang.getAndSendMessage(e.getPlayer(), "block-place-denied");

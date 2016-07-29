@@ -12,14 +12,15 @@ import java.util.List;
 /**
  * Created by Ethan on 7/7/16.
  */
-public class WarpSaveFile {
+public class InsertionSaveFile {
     private static final String TAC_PATH = "insertions";
+    private static final String MODE = "mode";
     private static final String FILE_NAME = "insertion_save_data.yml";
 
     private PluginCore pluginCore;
     FileConfiguration file;
 
-    public WarpSaveFile(PluginCore pluginCore) {
+    public InsertionSaveFile(PluginCore pluginCore) {
         this.pluginCore = pluginCore;
         this.file = pluginCore.getFile(FILE_NAME);
         file.options().header("This is a save data file for the positions of tactical\n" +
@@ -34,6 +35,14 @@ public class WarpSaveFile {
     public void setInsertions(Collection<Insertion> insertions) {
         Insertion[] data = insertions.toArray(new Insertion[insertions.size()]);
         file.set(TAC_PATH, data);
+    }
+
+    public boolean isWarpMode() {
+        return (boolean) file.get(MODE, true);
+    }
+
+    public void setIsWarpMode(boolean isWarpMode) {
+        file.set(MODE, isWarpMode);
     }
 
     public void save() {
