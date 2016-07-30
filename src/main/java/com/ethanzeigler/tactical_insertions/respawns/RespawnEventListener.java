@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -52,7 +53,7 @@ public class RespawnEventListener implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onInsertionPlace(BlockPlaceEvent e) {
         if (TacStackFactory.isTacStack(e.getItemInHand())) {
             if (e.getPlayer().hasPermission("tacticalinsertions.placeblock")) {

@@ -33,6 +33,7 @@ public class PluginCore {
     private PluginCorePlugin plugin;
 
     public PluginCore(PluginCorePlugin plugin, boolean cachePlayerFiles, Language lang) {
+        this.plugin = plugin;
         dirPath = plugin.getDataFolder().getPath() + "/";
         configManager = new ConfigManager(plugin);
         languageManager = new LanguageManager(plugin, Language.ENGLISH, (String) configManager.get(ConfigValue.PLUGIN_PREFIX));
@@ -54,7 +55,8 @@ public class PluginCore {
 
     public boolean hasVersionUpdated() {
         FileConfiguration file = getFile("version_save_data.yml");
-        if (!file.get("latest_version").equals(plugin.getDescription().getVersion())) {
+        String version = (String) file.get("latest_version");
+        if (version == null || !version.equals(plugin.getDescription().getVersion())) {
             file.set("latest_version", plugin.getDescription().getVersion());
             return true;
         }

@@ -1,5 +1,7 @@
 package com.ethanzeigler.bukkit_plugin_utils.language;
 
+import org.bukkit.ChatColor;
+
 import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.MissingResourceException;
@@ -19,13 +21,12 @@ public class I18N implements MessageProvider {
         this.lang = lang;
         formatter = new MessageFormat("", lang.getLocale());
 
-        messages = ResourceBundle.getBundle(
-                lang.getResourceBundleBase(), lang.getLocale(), classLoader);
+        messages = ResourceBundle.getBundle(lang.getResourceBundleBase(), lang.getLocale(), classLoader);
     }
 
     @Override
     public String get(String key) {
-        return messages.getString(key);
+        return ChatColor.translateAlternateColorCodes('&', messages.getString(key));
     }
 
     @Override

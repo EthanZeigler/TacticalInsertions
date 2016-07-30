@@ -94,7 +94,7 @@ public class WarpEventListener implements Listener, CommandExecutor {
         }
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent e) {
         if (TacStackFactory.isTacStack(e.getItemInHand())) {
             // is a tactical insertion
