@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Tacticalinsertions by EthanZeigler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Tacticalinsertions</h1>
+      <h2 class="project-tagline">Bukkit Plugin</h2>
+      <a href="https://github.com/EthanZeigler/TacticalInsertions" class="btn">View on GitHub</a>
+      <a href="https://github.com/EthanZeigler/TacticalInsertions/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/EthanZeigler/TacticalInsertions/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h1>
+<a id="welcome-to-tactical-insertions" class="anchor" href="#welcome-to-tactical-insertions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Welcome to Tactical Insertions!</h1>
+
+<p>Tactical Insertions is the result of a plugin request on <a href="https://bukkit.org/">Bukkit.org</a> by <a href="https://bukkit.org/members/greenpls.91217008/">GreenPls</a>. Remember the tactical insertion from Call of Duty Black Ops as well as Modern Warfare? Tactical Insertions does exactly this! This plugin allows your server's players to place blocks that act just as Call of Duty's tactical insertion. When a player dies, they respawn at the location of the insertion. However, what if this "breakable warp" concept could be used to create multiple warps? This is what makes Tactical Insertions so impressive.</p>
+
+<h2>
+<a id="why-two-modes" class="anchor" href="#why-two-modes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Why Two Modes?</h2>
+
+<p>When this plugin idea was originally introduced by GreenPls, I saw the opportunity for 2 modes to be implemented-- a warp mode and a respawn mode. The respawn mode is what most people think of when they imagine the Call of Duty insertion. When the player dies, they respawn at the insertion if another player hasn't already broken it, however, GreenPls wanted the ability to place multiple insertions as breakable warp points for his factions server. This is where warp mode comes in. Warp mode allows players to place multiple insertions, name them, and then wrap to them at any time until they are broken by another player.</p>
+
+<h2>
+<a id="how-to-use-tactical-insertions" class="anchor" href="#how-to-use-tactical-insertions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>How to use Tactical Insertions</h2>
+
+<p>To get an insertion, run the command <strong>/gettac</strong>, for get tactical. Place the insertion far enough from others (the plugin will warn the player if it isn't). Warp mode will then have the player name the insertion while respawn mode will be done.</p>
+
+<h3>
+<a id="warp-mode" class="anchor" href="#warp-mode" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Warp Mode</h3>
+
+<p>Warp mode is GreenPls's original idea for the plugin. Once the player has named the insertion after placing it, it will become a location he or she can warp to. To find all of the warps available to him or her, run the command <strong>/tacwarps</strong>. This will list all of his or her available warps. To warp to them, run <strong>/tacwarp </strong>, replacing name with the name of the warp.</p>
+
+<h3>
+<a id="respawn-mode" class="anchor" href="#respawn-mode" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Respawn Mode</h3>
+
+<p>When the player dies, he or she will respawn at their tactical insertion. It will break once the player respawns.</p>
+
+<h1>
+<a id="server-owners-instructions" class="anchor" href="#server-owners-instructions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Server Owner's Instructions</h1>
+
+<h2>
+<a id="all-commands" class="anchor" href="#all-commands" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>All Commands</h2>
+
+<ul>
+<li>tacwarp : Warps the player to his or her insertion with the same name. This is for warp mode only.</li>
+<li>tacwarps: Lists all of a player's warps. This is for warp mode only.</li>
+<li>ti: Contains moderator commands (is not a command itself).</li>
+<li>-ti version: Prints the plugin version</li>
+<li>-ti changemode: Changes the plugin from one mode to the other. The server must be restarted or reloaded after this command is run, as Tactical Insertions will shut down.</li>
+<li>-ti clearinsertions: Deletes all insertions from the server. This must be done before changing modes.</li>
+</ul>
+
+<h2>
+<a id="permissions" class="anchor" href="#permissions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Permissions</h2>
+
+<ul>
+<li>tacticalinsertions.getblock: Lets the player use /gettac</li>
+<li>tacticalinsertions.placeblock: Lets the player place tactical insertions</li>
+<li>tacticalinsertions.moderator: Gives access to the moderator commands.</li>
+</ul>
+
+<h2>
+<a id="changing-the-plugin-mode" class="anchor" href="#changing-the-plugin-mode" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Changing the plugin mode</h2>
+
+<p>To change the plugin mode, you must first clear all insertions from the server using <strong>/ti clearinsertions</strong>. You will then be able to run <strong>/ti changemode</strong>. The plugin will shut down after this. Restart or reload the server to reenable the plugin. This is necessary to prevent the numerous problems that could come from such a dramatic change the plugin would have to go through.</p>
+
+<h2>
+<a id="language-files" class="anchor" href="#language-files" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Language Files</h2>
+
+<p>Want to translate TacticalInsertions to another language or just want to change some of the messages? By changing the language files inside the Language folder the plugin creates, you can change the messages from the plugin. If you translate this to another language, please send me the file with the translations. I will put the translation into the plugin officially for others to use!</p>
+
+<h2>
+<a id="the-configuration-file" class="anchor" href="#the-configuration-file" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Configuration File</h2>
+
+<p>Here are the fields of the configuration file and their explanations.</p>
+
+<ul>
+<li>plugin_prefix: the name the plugin uses when talking to players</li>
+<li>distance_from_other_tac_minimum: the number of blocks away an insertion has to be from others</li>
+<li>allow_players_to_drop_insertions: whether or not dropped insertion blocks can exist in the world</li>
+<li>tac_block_material: the material of the insertion block. If you change this and you can no longer get an insertion, it is invalid. Typically, solid blocks are your best bet. Use the material list <a href="https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html">https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html</a> to select a material. It is case sensitive.</li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/EthanZeigler/TacticalInsertions">Tacticalinsertions</a> is maintained by <a href="https://github.com/EthanZeigler">EthanZeigler</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
